@@ -41,8 +41,8 @@ class Code(Base):
 
     place = relationship("Place", back_populates="codes")
     user = relationship("User", back_populates="codes")
-    comments = relationship("Comment", back_populates="codes", cascade="all, delete-orphan")
-    votes = relationship("Vote", back_populates="codes", cascade="all, delete-orphan")
+    comments = relationship("Comment", back_populates="code", cascade="all, delete-orphan")
+    votes = relationship("Vote", back_populates="code", cascade="all, delete-orphan")
 
 
 class Comment(Base):

@@ -3,7 +3,7 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     db_url: str
-    bot_token: str = None
+    bot_token: str
 
     class Config:
         env_file = ".env"
