@@ -1,5 +1,6 @@
 import asyncio
 from telegram.handlers import *
+from telegram.state_machines.select_place import *
 from telegram import bot, dp
 from db import init_db
 
