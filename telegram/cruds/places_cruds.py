@@ -21,3 +21,10 @@ async def get_unique_places(city: str) -> list[str]:
         ))
 
     return [row[0] for row in result.all()]
+
+async def get_unique_cities() -> list[str]:
+    async with AsyncSessionLocal() as session:
+        result = await session.execute(
+            select(distinct(PlaceModel.city))
+        )
+    return [row[0] for row in result.all()]
