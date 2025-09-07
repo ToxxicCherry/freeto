@@ -2,6 +2,7 @@ from aiogram.filters import Command
 from aiogram.types import Message
 from .cruds import create_user
 from .bot import bot, dp
+from .keyboards import main_menu_kb
 
 
 @dp.message(Command('start'))
@@ -13,5 +14,6 @@ async def start_command(message: Message):
 
     await bot.send_message(
         message.chat.id,
-        text="КРЯ!"
+        text='КРЯ!',
+        reply_markup=main_menu_kb
     )

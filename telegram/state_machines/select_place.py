@@ -1,6 +1,6 @@
 from aiogram.fsm.context import FSMContext
 from aiogram.fsm.state import StatesGroup, State
-from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup, Message, CallbackQuery
+from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, StateFilter
 from telegram import bot, dp
 from ..cruds import get_places, get_unique_cities, get_unique_places
@@ -9,9 +9,10 @@ from ..keyboards import create_inline_keyboard
 class Form(StatesGroup):
     city = State()
     place_type = State()
+    code = State()
 
 
-@dp.message(Command('select_place'))
+@dp.message(lambda msg: msg.text.lower() == 'найти код')
 async def select_place(message: Message, state: FSMContext):
     cities = await get_unique_cities()
 
@@ -50,6 +51,6 @@ async def process_place_type(callback: CallbackQuery, state: FSMContext):
         text="Выберите заведение",
         reply_markup=kb,
     )
-    await state.clear()
+    await state.set_state(Form.code)
 
 
