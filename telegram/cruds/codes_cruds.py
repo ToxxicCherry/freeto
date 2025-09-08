@@ -19,7 +19,7 @@ async def get_code_by_place_addr(address: str) -> CodeModel | None:
         result = await session.execute(stmt)
     return result.scalar_one_or_none()
 
-async def add_code_to_place(address: str, user_tg_id: str, code: int):
+async def add_code_to_place(address: str, user_tg_id: str, code: str) -> CodeModel | None:
     subq_place = select(PlaceModel.id).where(PlaceModel.address == address).scalar_subquery()
     subq_user = select(UserModel.id).where(UserModel.tg_id == user_tg_id).scalar_subquery()
 
@@ -32,3 +32,4 @@ async def add_code_to_place(address: str, user_tg_id: str, code: int):
     async with AsyncSessionLocal() as session:
         session.add(new_code)
         await session.commit()
+        return new_code

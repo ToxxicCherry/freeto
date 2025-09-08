@@ -3,10 +3,12 @@ from aiogram.fsm.state import StatesGroup, State
 from aiogram.types import Message, CallbackQuery
 from aiogram.filters import Command, StateFilter
 from telegram import bot, dp
+from db import CodeModel
 from ..cruds import (get_addresses,
                      get_unique_cities,
                      get_unique_places,
-                     get_code_by_place_addr)
+                     get_code_by_place_addr,
+                     add_code_to_place)
 from ..keyboards import create_inline_keyboard
 
 class Form(StatesGroup):
@@ -69,6 +71,7 @@ async def process_view_or_enter_code(callback: CallbackQuery, state: FSMContext)
 @dp.callback_query(StateFilter(Form.address))
 async def process_address(callback: CallbackQuery, state: FSMContext):
     address = callback.data
+    await state.update_data(address=address)
     data = await state.get_data()
     to_do = data["what_to_do"]
 
@@ -76,8 +79,37 @@ async def process_address(callback: CallbackQuery, state: FSMContext):
         code = await get_code_by_place_addr(address=address)
         if code:
             await callback.message.edit_text(text=code.code)
+            await state.clear()
             return
+
         await callback.message.edit_text(text="Ничего нет по этому адрессу ☹️")
+        await state.clear()
+        return
+
+    await callback.message.edit_text(text="Отправь мне код сообщением")
+    await state.set_state(Form.enter_code)
+
+@dp.message(StateFilter(Form.enter_code))
+async def enter_code(message: Message, state: FSMContext):
+    data = await state.get_data()
+    user_tg_id = str(message.from_user.id)
+    code = message.text
+
+    if not code.isdigit():
+        await bot.send_message(chat_id=user_tg_id, text="Некорректный код. Отправь еще раз")
+        return
+
+    address = data['address']
+
+    result = await add_code_to_place(address, user_tg_id, code)
+    if isinstance(result, CodeModel):
+        await bot.send_message(chat_id=user_tg_id, text="Успешно добавил")
+        await state.clear()
+        return
+    await bot.send_message(chat_id=user_tg_id, text="Что-то пошло не так")
+    await state.clear()
+
+
 
 
 
