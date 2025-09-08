@@ -8,7 +8,7 @@ async def get_code_by_place_addr(address: str) -> CodeModel | None:
         .where(PlaceModel.address == address)
         .order_by(desc(CodeModel.created_at))
         .limit(1)
-        .subquery()
+        .scalar_subquery()
     )
 
     stmt = (
@@ -16,7 +16,8 @@ async def get_code_by_place_addr(address: str) -> CodeModel | None:
         .where(CodeModel.id.in_(subq))
     )
     async with AsyncSessionLocal() as session:
-        return await session.execute(stmt).scalar_one_or_none()
+        result = await session.execute(stmt)
+    return result.scalar_one_or_none()
 
 async def add_code_to_place(address: str, user_tg_id: str, code: int):
     subq_place = select(PlaceModel.id).where(PlaceModel.address == address).scalar_subquery()
